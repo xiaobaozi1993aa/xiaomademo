@@ -2,6 +2,7 @@
 import requests
 import pymysql
 import json
+import time
 
 
 #发送短信验证码
@@ -9,6 +10,7 @@ def get_mcode(phone):
     url = 'https://gateway.xmzt.cn/user/sendValidate'
     data = {"phone": "%s" % phone}
     r = requests.get(url=url, params=data).json()
+    print(data)
     print('短信注册:',r.get('reMsg'))
 
 
@@ -25,7 +27,6 @@ def get_messafe_code(phone):
 #用户注册
 def register(phone,psd,mcode):
     path = 'https://gateway.xmzt.cn/user/register/phone'
-    #api = ''.join([url, path])
     data = {"client":"w'x","password":psd,"phone":phone,"verificationCode":mcode,"version":3}
     r = requests.post(url=path, data=data).json()
     print('用户注册:',r.get('reMsg'))
@@ -51,20 +52,20 @@ def get_id(token):
 
 # id = 110101198001010010
 #选择路线
-def choose_line(token,uuid):
-    path = 'https://gateway.xmzt.cn/tourapi/line/detail'
-    data = {"client":"ios","lineId":33,"token":token,"userId":uuid,"version":1.0}
-    r = requests.get(url=path, params=data).json()
-    print("选择路线:",r.get('reMsg'),r)
-    return r
-#
-#
-#获取出发日期
-def get_date(token,uuid):
-    path = 'https://gateway.xmzt.cn/tourapi/line/prices'
-    data = {"client": "ios", "lineId": 33, "token": token, "userId": uuid, "version": 1.0}
-    r = requests.get(url=path, params=data).json()
-    print("选择路线:",r)
+# def choose_line(token,uuid):
+#     path = 'https://gateway.xmzt.cn/tourapi/line/detail'
+#     data = {"client":"ios","lineId":33,"token":token,"userId":uuid,"version":1.0}
+#     r = requests.get(url=path, params=data).json()
+#     print("选择路线:",r.get('reMsg'),r)
+#     return r
+# #
+# #
+# #获取出发日期
+# def get_date(token,uuid):
+#     path = 'https://gateway.xmzt.cn/tourapi/line/prices'
+#     data = {"client": "ios", "lineId": 33, "token": token, "userId": uuid, "version": 1.0}
+#     r = requests.get(url=path, params=data).json()
+#     print("选择路线:",r)
 #
 #
 # #添加出游人
@@ -76,10 +77,14 @@ def get_date(token,uuid):
 #     r = requests.post(url=path, params=data).json()
 #     print("添加出游人:", r)
 
-data = {"openInvoice":0,"bookPeople":{"name":"芒","phone":"13066909086"},
-         "carList":[{"phone":"13066909086","carNumber":"川QQ1234","numberType":0}],
+
+# bookPeople 预订人
+# visitorList 出行人
+# carList 司机
+data = {"openInvoice":0,"bookPeople":{"name":"芒","phone":"13800000007"},
+         "carList":[{"phone":"13800000008","carNumber":"川QQ1234","numberType":0}],
          "cost":[{"costType":1,"visitorList":[{"name":"我呢","idCard":"130101199305010018",
-           "phone":"13930970852"}]}],"lineId":33,"departDate":"2019-10-12"}
+           "phone":"13800000009"}]}],"lineId":33,"departDate":"2019-10-15"}
 
 #提交订单
 def get_order(token):
@@ -109,11 +114,12 @@ def get_order(token):
 
 #修改状态为40
 def update_state(orderid):
-    db = pymysql.Connect('xmzt-data.mysql.rds.aliyuncs.com', 'xmztapi', '3GY9kxeY1YZb', 'tour')
-    cursor = db.cursor()
-    cursor.execute('update tour_order set state = 40 where order_id = "%s"' % orderid)
-    db.commit()
-    print('修改成功')
+    path = ' https://gateway.xmzt.cn/tourapi/test/order/state'
+    data = {"orderId": orderid,"state":40}
+    r = requests.post(url=path, data=data).json()
+    print(data)
+    print('修改成功', r)
+
 
 
 def order_true(orderid):
@@ -128,11 +134,11 @@ def order_true(orderid):
 
 #修改状态为60
 def update_state2(orderid):
-    db = pymysql.Connect('xmzt-data.mysql.rds.aliyuncs.com', 'xmztapi', '3GY9kxeY1YZb', 'tour')
-    cursor = db.cursor()
-    cursor.execute('update tour_order set state = 60 where order_id = "%s"' % orderid)
-    db.commit()
-    print('修改成功')
+    path = ' https://gateway.xmzt.cn/tourapi/test/order/state'
+    data = {"orderId": orderid, "state": 60}
+    r = requests.post(url=path, data=data).json()
+    print(data)
+    print('修改成功', r)
 
 #
 #
@@ -151,21 +157,19 @@ def update_state2(orderid):
 
 
 if __name__ == '__main__':
-    #phone = 13010000009
-    for phone in range(13010000302,13010000303):
+    #phone = 15800000000
+    #for phone in range(13800000067,13800000100):
+        phone = 13900000703
         psd = 123456
         get_mcode(phone)
         mcode = get_messafe_code(phone)
         register(phone,psd,mcode)
         token = login(phone,psd)
-        uuid = get_id(token)
-        choose_line(token,uuid)
-        get_date(token,uuid)
-        # add_people(token,uuid)
-        orderid = get_order(token)
-        update_state(orderid)
-        order_true(orderid)
-        update_state2(orderid)
-        # id = get_sql_id(orderid)
-        # order_ture(id)
+        # time.sleep(1)
+        # uuid = get_id(token)
+        # orderid = get_order(token)
+        # update_state(orderid)
+        # order_true(orderid)
+        # update_state2(orderid)
+
 
