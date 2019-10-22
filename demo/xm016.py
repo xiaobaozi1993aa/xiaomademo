@@ -14,7 +14,7 @@ def add_car(token,car):
 
 if __name__ == '__main__':
     phone = (a for a in range(13900000110,13900000150))
-    num = (a for a in range(1000, 1040))
+    num = (a for a in range(1000, 1041))
     d = zip(num, phone)
     i = 0
     for a in d:
